@@ -1,5 +1,5 @@
-# Document Management Systema Document 
-management system for archiving documents in a FileStore,
+# Document Management System 
+a Document management system for archiving documents in a FileStore,
 with automatic OCR (queue for OC-recognition),
 automatic summary generation (using Gen-AI),
 tagging and full text search (ElasticSearch).
@@ -7,6 +7,9 @@ tagging and full text search (ElasticSearch).
 
 nur ein Vorschlag: 
 
+## 🏗️ Projektstruktur
+
+```plaintext
 paperless-project/
 │── docker-compose.yml         # startet alle Services
 │── README.md                  # Projektübersicht
@@ -38,4 +41,4 @@ paperless-project/
 │
 └── .github/
     └── workflows/             # CI/CD Pipelines (z.B. GitHub Actions)
-
+```
