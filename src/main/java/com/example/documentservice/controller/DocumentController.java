@@ -1,43 +1,60 @@
 package com.example.documentservice.controller;
 
 import com.example.documentservice.entity.Document;
-import com.example.documentservice.service.DocumentService;
+import com.example.documentservice.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/document")
 public class DocumentController {
     @Autowired
-    private DocumentService documentService;
+    private DocumentRepository documentRepository;
 
-    @GetMapping("/document/{id}")
-    public String getDocumentbyId(@PathVariable("id") String id) {
-        return this.documentService.findById(id).toString();
+    @GetMapping("/{id}")
+    public Document getDocumentbyId(@PathVariable Integer id) {
+        return this.documentRepository.findById(id).orElse(null);
     }
 
-    @GetMapping("/document")
-    public String getDocuments(@PathVariable("id") String id) {
-        return this.documentService.findAll().toString();
+    @GetMapping()
+    public ResponseEntity<List<Document>> getAllDocuments() {
+        List<Document> documents = this.documentRepository.findAll();
+        return ResponseEntity.ok(documents);
     }
 
-    @PostMapping("/document")
-    public String uploadDocument(@RequestBody Document document){/*@RequestParam("file") MultipartFile file,
-                                  @RequestParam(value = "title", required = false) String title,
-                                  @RequestParam(value = "created", required = false) String created,
-                                  @RequestParam(value = "correspondent", required = false) String correspondent,
-                                  @RequestParam(value = "document_type", required = false) String documentType,
-                                  @RequestParam(value = "storage_path", required = false) String storagePath,
-                                  @RequestParam(value = "tags", required = false) List<String> tags,
-                                  @RequestParam(value = "archive_serial_number", required = false) String archiveSerialNumber,
-                                  @RequestParam(value = "custom_fields", required = false) List<String> customFields)*/
-        return this.documentService.upload(document).toString();
+    @PostMapping()
+    public ResponseEntity<Document> uploadDocument(@RequestBody Document document){
+        System.out.println(document);
+        Document saved = this.documentRepository.save(document);
+        return ResponseEntity.ok(saved);
     }
 
-    /*@PutMapping("/document/{id}")
-    public String update(@PathVariable("id") String id){
-        return this.documentService.update(id).toString();
-    }*/
+    @PutMapping("/{id}")
+    public ResponseEntity<Document> updateDocumentById(@PathVariable Integer id,
+                                               @RequestBody Document updatedDocument){
+        return this.documentRepository.findById(id).map(existingDocument -> {
+                    // Update fields
+                    existingDocument.setSummary(updatedDocument.getSummary());
+                    // Add other fields as necessary
+
+                    // Save updated entity
+                    Document savedDocument = this.documentRepository.save(existingDocument);
+                    return ResponseEntity.ok(savedDocument);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDocumentById(@PathVariable Integer id) {
+        if (documentRepository.existsById(id)) {
+            documentRepository.deleteById(id);
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
+            return ResponseEntity.notFound().build(); // 404 Not Found
+        }
+    }
+
 }
