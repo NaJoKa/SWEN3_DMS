@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "documents")
-public class Document {
+public class Document implements IDocument {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(length = 36)

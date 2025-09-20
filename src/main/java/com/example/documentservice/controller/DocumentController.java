@@ -2,37 +2,38 @@ package com.example.documentservice.controller;
 
 import com.example.documentservice.entity.Document;
 import com.example.documentservice.repository.DocumentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/document")
-public class DocumentController {
-    @Autowired
+public class DocumentController implements IDocumentController {
+    @Inject
+    @Named("documentRepository")
     private DocumentRepository documentRepository;
 
-    @GetMapping("/{id}")
-    public Document getDocumentbyId(@PathVariable Integer id) {
+    @Override
+    public Document getDocumentById(@PathVariable Integer id) {
         return this.documentRepository.findById(id).orElse(null);
     }
 
-    @GetMapping()
+    @Override
     public ResponseEntity<List<Document>> getAllDocuments() {
         List<Document> documents = this.documentRepository.findAll();
         return ResponseEntity.ok(documents);
     }
 
-    @PostMapping()
+    @Override
     public ResponseEntity<Document> uploadDocument(@RequestBody Document document){
         System.out.println(document);
         Document saved = this.documentRepository.save(document);
         return ResponseEntity.ok(saved);
     }
 
-    @PutMapping("/{id}")
+    @Override
     public ResponseEntity<Document> updateDocumentById(@PathVariable Integer id,
                                                @RequestBody Document updatedDocument){
         return this.documentRepository.findById(id).map(existingDocument -> {
@@ -47,7 +48,7 @@ public class DocumentController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @Override
     public ResponseEntity<Void> deleteDocumentById(@PathVariable Integer id) {
         if (documentRepository.existsById(id)) {
             documentRepository.deleteById(id);
