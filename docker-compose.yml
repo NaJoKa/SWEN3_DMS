@@ -2,9 +2,11 @@ services:
   postgres:
     build: infra/postgres/.
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/paperless
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PLUSER: ${PLUSER}
+      PLUSER_PASSWORD: ${PLUSER_PASSWORD}
       #POSTGRES_DB: bookstore
     ports:
       - "5432:5432"
@@ -16,8 +18,8 @@ services:
     ports:
       - "5050:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     depends_on:
       - postgres
     volumes:
