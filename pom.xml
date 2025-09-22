@@ -84,6 +84,13 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${spring.boot.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal> <!-- erstellt ausführbares Fat-JAR -->
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 			<!-- Maven Surefire Plugin for running tests -->

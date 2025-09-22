@@ -1,4 +1,16 @@
 services:
+  paperless-app:
+    build:
+      context: . # Root des Projekts
+      dockerfile: paperlessREST/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      PLUSER: ${PLUSER}
+      PLUSER_PASSWORD: ${PLUSER_PASSWORD}
+    depends_on:
+      - postgres
   postgres:
     build: infra/postgres/.
     environment:
