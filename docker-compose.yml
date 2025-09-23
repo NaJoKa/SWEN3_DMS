@@ -1,5 +1,5 @@
 services:
-  paperless-app:
+  paperless-rest:
     build:
       context: . # Root des Projekts
       dockerfile: paperlessREST/Dockerfile
@@ -10,7 +10,8 @@ services:
       PLUSER: ${PLUSER}
       PLUSER_PASSWORD: ${PLUSER_PASSWORD}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
   postgres:
     build: infra/postgres/.
     environment:
@@ -24,6 +25,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4:latest
