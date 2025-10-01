@@ -1,4 +1,12 @@
 services:
+  paperless-webui:
+    build:
+      context: .
+      dockerfile: paperlessWebUI/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - paperless-rest
   paperless-rest:
     build:
       context: . # Root des Projekts
