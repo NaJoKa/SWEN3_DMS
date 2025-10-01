@@ -1,0 +1,33 @@
+<button type="button" (click)="goBack()">← Zurück</button>
+
+<section *ngIf="loading">Lade…</section>
+<p *ngIf="!loading && error" class="error">{{ error }}</p>
+
+<section *ngIf="!loading && doc">
+  <h2>Dokument: {{ doc.title || doc.id }}</h2>
+
+  <label>Titel</label>
+  <input [(ngModel)]="editing!.title" placeholder="Titel" />
+
+  <label>Zusammenfassung</label>
+<textarea [(ngModel)]="editing!.summary"></textarea>
+
+<label>OCR-Text</label>
+<textarea [(ngModel)]="editing!.ocrText"></textarea>
+
+  <div class="actions">
+<div class="actions">
+  <button type="button" (click)="save()" [disabled]="saving">Speichern</button>
+  <button type="button" (click)="del()"  [disabled]="deleting">Löschen</button>
+  <button type="button" (click)="loadMetadata()">Metadaten anzeigen</button>
+</div>
+
+  </div>
+
+  <p *ngIf="msg" class="ok">{{ msg }}</p>
+
+  <details *ngIf="meta" open>
+    <summary>Metadata</summary>
+    <pre>{{ meta | json }}</pre>
+  </details>
+</section>
