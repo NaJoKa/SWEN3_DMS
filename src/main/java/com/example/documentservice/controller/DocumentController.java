@@ -39,7 +39,13 @@ public class DocumentController implements IDocumentController {
         return this.documentRepository.findById(id).map(existingDocument -> {
                     // Update fields
                     existingDocument.setSummary(updatedDocument.getSummary());
-                    // Add other fields as necessary
+                    existingDocument.setDocumentType(updatedDocument.getDocumentType());
+                    existingDocument.setTitle(updatedDocument.getTitle());
+                    existingDocument.setOcrText(updatedDocument.getOcrText());
+                    existingDocument.setCreated(updatedDocument.getCreated());
+                    existingDocument.setCorrespondent(updatedDocument.getCorrespondent());
+                    existingDocument.setStoragePath(updatedDocument.getStoragePath());
+                    existingDocument.setArchiveSerialNumber(updatedDocument.getArchiveSerialNumber());
 
                     // Save updated entity
                     Document savedDocument = this.documentRepository.save(existingDocument);
