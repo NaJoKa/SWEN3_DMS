@@ -225,11 +225,20 @@
           <clipPath id="a"><path fill="#fff" d="M0 0h982v239H0z" /></clipPath>
         </defs>
       </svg>
-      <h1>Hello, {{ title }}</h1>
-      <p>Congratulations! Your app is running. 🎉</p>
+        <h1> {{title}}</h1>
+        <input [(ngModel)] = "query" placeholder="search documents"/>
+        <button (click) = "search()">Search</button>
+
+        <ul>
+            <li *ngFor="let doc of results">
+                <strong> {{doc._source.title}}</strong> <br>
+                {{doc._source.content}}
+            </li>
+        </ul>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
+        <router-outlet></router-outlet>
       <div class="pill-group">
         @for (item of [
           { title: 'Explore the Docs', link: 'https://angular.dev' },

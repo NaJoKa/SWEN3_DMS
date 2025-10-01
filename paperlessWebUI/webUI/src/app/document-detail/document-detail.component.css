@@ -1,0 +1,5 @@
+label { display:block; margin-top:.5rem; font-weight:600; }
+input, textarea { width:100%; padding:.5rem; margin-top:.25rem; }
+.actions { display:flex; gap:.5rem; margin-top:.75rem; }
+.ok { color:#1b7b1b; }
+.error { color:#b00; }
