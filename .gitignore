@@ -34,3 +34,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Angular / Vite Cache
+paperless_ui_manage_document/paperless-ui-manage/.angular/
+paperless_ui_manage_document/paperless-ui-manage/node_modules/
+
+.env
+**/commitmessages/
