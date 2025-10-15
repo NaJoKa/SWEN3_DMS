@@ -61,6 +61,25 @@ services:
     volumes:
       - ./infra/postgres/pgadmin-servers.json:/pgadmin4/servers.json
 
+  kafka-init:
+    image: apache/kafka:latest
+    depends_on:
+      kafka:
+        condition: service_started
+    restart: "no"
+    entrypoint: sh -lc
+    command: |
+      set -e
+      # auf Broker warten
+      for i in $(seq 1 30); do
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list >/dev/null 2>&1 && break
+        echo "Waiting for Kafka... ($i)"; sleep 2;
+      done
+      # Topics idempotent anlegen
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic doc.ocr --partitions 3 --replication-factor 1 || true
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic doc.ocr.dlq --partitions 1 --replication-factor 1 || true
+      echo "Kafka topics ensured."
+
   kafka:
     image: apache/kafka:latest
     container_name: kafka
@@ -93,6 +112,19 @@ services:
       environment:
         KAFKA_CLUSTERS_0_NAME: local
         KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+
+  ocr-worker:
+    image: apache/kafka:latest
+    container_name: ocr-worker
+    depends_on:
+      kafka:
+        condition: service_started
+    command: >
+      sh -lc "/opt/kafka/bin/kafka-console-consumer.sh
+      --bootstrap-server kafka:29092
+      --topic doc.ocr
+      --group ocr-worker
+      --from-beginning"
 
 volumes:
   postgres-data:

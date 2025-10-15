@@ -40,3 +40,4 @@ paperless_ui_manage_document/paperless-ui-manage/.angular/
 paperless_ui_manage_document/paperless-ui-manage/node_modules/
 
 .env
+**/commitmessages/
