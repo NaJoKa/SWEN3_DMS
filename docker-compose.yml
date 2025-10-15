@@ -1,4 +1,5 @@
 services:
+  # UI
   paperless-webui:
     build:
       context: .
@@ -7,19 +8,27 @@ services:
       - "80:80"
     depends_on:
       - paperless-rest
+
+  # REST
   paperless-rest:
     build:
       context: . # Root des Projekts
       dockerfile: paperlessREST/Dockerfile
     ports:
-      - "8080:8080"
+      - "8082:8080"
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       PLUSER: ${PLUSER}
       PLUSER_PASSWORD: ${PLUSER_PASSWORD}
+      SPRING_DATASOURCE_USERNAME: ${PLUSER}
+      SPRING_DATASOURCE_PASSWORD: ${PLUSER_PASSWORD}
+      # Für Spring Boot Kafka (wir nutzen den internen Listener im Compose-Netz)
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     depends_on:
       postgres:
         condition: service_healthy
+      kafka:
+        condition: service_started
   postgres:
     build: infra/postgres/.
     environment:
@@ -34,10 +43,10 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
-      interval: 10s
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres || exit 1" ]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -47,11 +56,44 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - ./infra/postgres/pgadmin-servers.json:/pgadmin4/servers.json
+
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"         # für Clients auf dem Host
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://kafka:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      # optional: feste Cluster-ID setzen (Base64/ULID); sonst generiert das Image eine:
+      # CLUSTER_ID: "5L6g3nShT-eMCtK--X86sw"
+
+  kafka-ui:
+      image: provectuslabs/kafka-ui:latest
+      container_name: kafka-ui
+      depends_on:
+        - kafka
+      ports:
+        - "8081:8080"
+      environment:
+        KAFKA_CLUSTERS_0_NAME: local
+        KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
 
 volumes:
   postgres-data:
   pgadmin-data:
-

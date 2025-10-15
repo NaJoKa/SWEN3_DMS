@@ -1,5 +1,8 @@
-FROM postgres:alpine
+FROM postgres:17-alpine
 
-#COPY init.sql /docker-entrypoint-initdb.d/
-COPY init_db.sh /docker-entrypoint-initdb.d/
-RUN chmod +x /docker-entrypoint-initdb.d/init_db.sh
+# init_db.sh ins Init-Verzeichnis kopieren
+COPY init_db.sh /docker-entrypoint-initdb.d/init_db.sh
+
+# CRLF -> LF und ausführbar machen (BusyBox sed ist vorhanden)
+RUN sed -i 's/\r$//' /docker-entrypoint-initdb.d/init_db.sh \
+ && chmod +x /docker-entrypoint-initdb.d/init_db.sh

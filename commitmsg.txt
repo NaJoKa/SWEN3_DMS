@@ -1,0 +1,13 @@
+infra: fix Postgres init + Kafka wiring; stabilize compose
+
+- Postgres: init_db.bash auf #!/bin/sh umgestellt, CRLF→LF und +x 
+- infra/postgres/Dockerfile: sed/dos2unix-Step ergänzt
+- docker-compose: PLUSER als SPRING_DATASOURCE_* gesetzt
+- docker-compose: spring.kafka.bootstrap-servers=kafka:29092
+- depends_on für kafka; Postgres-Healthcheck robuster
+- pgAdmin wartet auf Postgres=healthy
+- REST extern auf 8082 gemappt (8080 war belegt)
+
+DoD: Kafka (KRaft) + UI laufen, Postgres healthy, REST/WebUI startbar. 
+
+BREAKING CHANGE: REST extern jetzt http://localhost:8082 (vorher 8080).
