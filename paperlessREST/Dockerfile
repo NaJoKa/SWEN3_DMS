@@ -38,7 +38,7 @@ RUN mvn -B -f pom.xml clean package -DskipTests
 # --------------------------
 # Stage 3: Runtime
 # --------------------------
-FROM openjdk:21-jdk-slim as runtime
+FROM openjdk:21-jdk-slim AS runtime
 
 WORKDIR /app
 

@@ -1,8 +1,11 @@
 import { Routes } from '@angular/router';
-import {DocumentDetailComponent} from "./document-detail/document-detail.component";
+import {Documents} from './components/documents/documents';
+import {Dashboard} from './components/dashboard/dashboard';
+import {Upload} from './components/upload/upload';
 
 export const routes: Routes = [
-  { path: "documents/:id", component: DocumentDetailComponent },
-  //{ path: "", redirectTo: "documents/1", pathMatch: "full" },
-  { path: "**", redirectTo: "" },
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  { path: 'dashboard', component: Dashboard },
+  { path: 'documents', component: Documents },
+  { path: 'upload', component: Upload },
 ];
