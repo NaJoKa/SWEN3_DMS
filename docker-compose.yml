@@ -7,6 +7,7 @@ services:
       - "80:80"
     depends_on:
       - paperless-rest
+    profiles: ["deploy"]
   paperless-rest:
     build:
       context: . # Root des Projekts
@@ -20,6 +21,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    profiles: ["deploy", "backend"]
   postgres:
     build: infra/postgres/.
     environment:
@@ -38,6 +40,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    profiles: ["deploy", "db", "backend"]
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -50,6 +53,7 @@ services:
       - postgres
     volumes:
       - ./infra/postgres/pgadmin-servers.json:/pgadmin4/servers.json
+    profiles: ["deploy", "db", "backend"]
 
 volumes:
   postgres-data:
