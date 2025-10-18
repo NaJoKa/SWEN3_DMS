@@ -14,4 +14,44 @@
     </div>
   </div>
 </div>
-<p>documents works!</p>
+<div class="col-md-8">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">Recent Orders</h5>
+      <div class="table-responsive">
+      <!-- Using async pipe with *ngIf to handle the observable correctly -->
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>Title</th>
+            <th>Summary</th>
+            <th>Created</th>
+            <th>Correspondent</th>
+            <th>Document Type</th>
+            <th>Storage Path</th>
+            <th>Archive Serial Number</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <!-- Loop through documents using async pipe to get data from Observable -->
+            @for (document of documents$ | async; track document.id) {
+              <tr>
+                <td>{{ document.title }}</td>
+                <td>{{ document.summary }}</td>
+                <td>{{ document.created | date:'short' }}</td>
+                <td>{{ document.correspondent }}</td>
+                <td>{{ document.documentType }}</td>
+                <td>{{ document.storagePath }}</td>
+                <td>{{ document.archiveSerialNumber }}</td>
+                <td>
+                  <button class="btn btn-info" (click)="viewDocument(document.id)">View</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
