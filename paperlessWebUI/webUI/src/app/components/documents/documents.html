@@ -1,0 +1,57 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Documents</h1>
+  <button class="btn btn-primary" (click)="emitSettingsEvent()">
+    <i class="bi bi-gear"></i> Settings
+  </button>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Search</h5>
+        <!--ToDO: Johanna -->
+      </div>
+    </div>
+  </div>
+</div>
+<div class="col-md-8">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">Recent Orders</h5>
+      <div class="table-responsive">
+      <!-- Using async pipe with *ngIf to handle the observable correctly -->
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>Title</th>
+            <th>Summary</th>
+            <th>Created</th>
+            <th>Correspondent</th>
+            <th>Document Type</th>
+            <th>Storage Path</th>
+            <th>Archive Serial Number</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <!-- Loop through documents using async pipe to get data from Observable -->
+            @for (document of documents$ | async; track document.id) {
+              <tr>
+                <td>{{ document.title }}</td>
+                <td>{{ document.summary }}</td>
+                <td>{{ document.created | date:'short' }}</td>
+                <td>{{ document.correspondent }}</td>
+                <td>{{ document.documentType }}</td>
+                <td>{{ document.storagePath }}</td>
+                <td>{{ document.archiveSerialNumber }}</td>
+                <td>
+                  <button class="btn btn-info" (click)="viewDocument(document.id)">View</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

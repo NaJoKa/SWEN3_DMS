@@ -1,0 +1,36 @@
+.sidebar {
+  height: 100vh;
+  transition: width 0.3s;
+  width: 250px;
+  overflow-x: hidden;
+}
+
+.sidebar.closed {
+  width: 80px;
+}
+
+.sidebar .nav-link {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.75rem 1rem;
+}
+
+.sidebar.closed .nav-link {
+  text-align: center;
+}
+
+.toggle-btn {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.bi {
+  font-size: 1.25rem;
+  margin-right: 10px;
+}
+
+.sidebar.closed .bi {
+  margin-right: 0;
+}

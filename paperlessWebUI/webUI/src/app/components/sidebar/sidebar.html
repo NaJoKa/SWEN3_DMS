@@ -1,0 +1,42 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 sidebar" [class.closed]="isSidebarClosed">
+  <button class="toggle-btn" (click)="toggleSidebar()">
+    <i class="bi bi-list icon"></i>
+    @if (!isSidebarClosed) {
+      <span>Toggle Sidebar</span>
+    }
+  </button>
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-house-door icon"></i>
+        @if (!isSidebarClosed) {
+          <span>Dashboard</span>
+        }
+      </a>
+    </li>
+    <li>
+      <a routerLink="/documents" routerLinkActive="active" class="nav-link link-dark">
+        <i class="bi bi-file-earmark-text icon"></i>
+        @if (!isSidebarClosed) {
+          <span>Documents</span>
+        }
+      </a>
+    </li>
+    <li>
+      <a routerLink="/upload" routerLinkActive="active" class="nav-link link-dark">
+        <i class="bi bi-box-seam icon"></i>
+        @if (!isSidebarClosed) {
+          <span>Upload</span>
+        }
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link link-dark">
+        <i class="bi bi-people icon"></i>
+        @if (!isSidebarClosed) {
+          <span>Customers</span>
+        }
+      </a>
+    </li>
+  </ul>
+</div>
