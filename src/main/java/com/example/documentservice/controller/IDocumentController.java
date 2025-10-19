@@ -1,5 +1,6 @@
 package com.example.documentservice.controller;
 
+import com.example.documentservice.dto.DocumentRequest;
 import com.example.documentservice.entity.Document;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,9 @@ public interface IDocumentController {
     @PutMapping("/{id}")
     ResponseEntity<Document> updateDocumentById(@PathVariable Integer id,
                                                 @RequestBody Document updatedDocument);
-
     @DeleteMapping("/{id}")
     ResponseEntity<Void> deleteDocumentById(@PathVariable Integer id);
+
+    @PostMapping("/send")
+    String sendForOcr(@RequestBody DocumentRequest request);
 }
