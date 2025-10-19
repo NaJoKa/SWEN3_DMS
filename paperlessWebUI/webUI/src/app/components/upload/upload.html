@@ -1,2 +1,25 @@
 <!--ToDO: Lisa -->
-<p>upload works!</p>
+<p>Document Upload</p>
+
+<div>
+  <div class="input-group mb-3">
+    <input type="file" class="form-control" (change)="onFileSelected($event)" id="fileUpload">
+    <label class="input-group-text" for="fileUpload">Upload</label>
+  </div>
+
+  <!-- Upload progress bar -->
+  <div class="progress-bar">
+    @if (uploading) {
+      <mat-progress-bar
+        mode="determinate"
+        [value]="uploadProgress"
+      ></mat-progress-bar>
+    }
+  </div>
+
+  <!--ToDo: Hide before document is sent to ocr-->
+  <div class="mb-3">
+    <label for="documentSummary" class="form-label">OCR summary of document</label>
+    <textarea class="form-control" id="documentSummary" style="height: 300px;"></textarea>
+  </div>
+</div>

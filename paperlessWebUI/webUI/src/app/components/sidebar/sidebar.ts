@@ -5,7 +5,8 @@ import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
   selector: 'app-sidebar',
   imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.html',
-  styleUrl: './sidebar.css'
+  styleUrl: './sidebar.css',
+  standalone: true,
 })
 export class Sidebar {
   @Output() toggle = new EventEmitter<boolean>();

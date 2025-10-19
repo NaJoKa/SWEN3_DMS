@@ -10,6 +10,7 @@ import {AsyncPipe, DatePipe, NgForOf} from '@angular/common';
     DatePipe
   ],
   templateUrl: './documents.html',
+  standalone: true,
   styleUrl: './documents.css'
 })
 export class Documents implements OnInit{
