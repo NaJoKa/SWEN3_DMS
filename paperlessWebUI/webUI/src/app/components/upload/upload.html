@@ -4,7 +4,7 @@
 <div>
   <div class="input-group mb-3">
     <input type="file" class="form-control" (change)="onFileSelected($event)" id="fileUpload">
-    <label class="input-group-text" for="fileUpload">Upload</label>
+    <button type="button" (click)="fileUpload">Upload File</button>
   </div>
 
   <!-- Upload progress bar -->
@@ -20,6 +20,6 @@
   <!--ToDo: Hide before document is sent to ocr-->
   <div class="mb-3">
     <label for="documentSummary" class="form-label">OCR summary of document</label>
-    <textarea class="form-control" id="documentSummary" style="height: 300px;"></textarea>
+    <textarea class="form-control" id="documentSummary" ></textarea>
   </div>
 </div>

@@ -36,8 +36,7 @@ export class Upload {
     this.uploading = true;
 
     //Sending the Upload request
-    const upload$ = this.http
-      .post('/api/upload', formData, {
+    const upload$ = this.http.post('/documents', formData, {
         reportProgress: true,
         observe: 'events',
       })
