@@ -1,13 +1,16 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {DocumentService} from '../../document-service';
-import {AsyncPipe, DatePipe} from '@angular/common';
+import {AsyncPipe, DatePipe, NgForOf} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-documents',
+  standalone: true,
   imports: [
     AsyncPipe,
-    DatePipe
+    DatePipe,
+    FormsModule,
   ],
   templateUrl: './documents.html',
   styleUrl: './documents.css'
@@ -15,16 +18,18 @@ import {AsyncPipe, DatePipe} from '@angular/common';
 export class Documents implements OnInit{
   @Output() settingsEvent = new EventEmitter<void>();
 
-  emitSettingsEvent() {
-    this.settingsEvent.emit();
-  }
-
-  documents$ = new Observable<any[]>;  // Observable for documents
+  documents$: Observable<any[]> = of([]);
+  searchQuery = '';
+  isSearching = false;  // Observable for documents
 
   constructor(private documentService: DocumentService) {}
 
   ngOnInit(): void {
     // Fetch documents as an Observable
+    this.loadAllDocuments();
+  }
+
+  loadAllDocuments() {
     this.documents$ = this.documentService.getDocuments();
   }
 
