@@ -1,7 +1,7 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {catchError, Observable, of} from 'rxjs';
 import {DocumentService} from '../../document-service';
-import {AsyncPipe, DatePipe, NgForOf} from '@angular/common';
+import {AsyncPipe, DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 @Component({
@@ -19,6 +19,7 @@ export class Documents implements OnInit{
   @Output() settingsEvent = new EventEmitter<void>();
 
   documents$: Observable<any[]> = of([]);
+  documentsAll$ = new Observable<any[]>;  // Observable for documents
   searchQuery = '';
   isSearching = false;  // Observable for documents
 
@@ -27,10 +28,11 @@ export class Documents implements OnInit{
   ngOnInit(): void {
     // Fetch documents as an Observable
     this.loadAllDocuments();
+    this.documents$ = this.documentService.getDocuments();
   }
 
   loadAllDocuments() {
-    this.documents$ = this.documentService.getDocuments();
+    this.documents$ = this.documentService.getDocumentsforSearch();
   }
 
   // Navigate to the detail page when a document is clicked
@@ -39,5 +41,26 @@ export class Documents implements OnInit{
     // For example:
     // this.router.navigate([`/document/${id}`]);
     console.log(`View document with ID: ${id}`);
+  }
+
+  searchDocuments(): void{
+    if (!this.searchQuery.trim()) {
+      this.loadAllDocuments();
+      return;
+    }
+    this.isSearching = true;
+    this.documents$ = this.documentService.searchDocuments(this.searchQuery).pipe(
+      catchError((err) => {
+        console.error('Search failed', err);
+        this.isSearching = false;
+        return of([]);
+      })
+    );
+
+    this.documents$.subscribe(() => (this.isSearching = false));
+  }
+
+  emitSettingsEvent() {
+    this.settingsEvent.emit();
   }
 }

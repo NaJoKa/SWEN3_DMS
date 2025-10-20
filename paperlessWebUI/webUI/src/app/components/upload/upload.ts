@@ -40,6 +40,7 @@ export class Upload {
     const upload$ = this.http.post('/rest-api/documents/upload', formData, {
       reportProgress: true,
       observe: 'events',
+      responseType: 'text' as 'json'
     })
       .pipe(finalize(() => this.reset()));
 
@@ -49,7 +50,12 @@ export class Upload {
           (100 * (event.loaded / (event.total ?? 1)))
         );
       } else if (event.type === HttpEventType.Response) {
+        const message = event.body as string;
         console.log('Upload complete!', event.body);
+        const textarea = document.getElementById('documentSummary') as HTMLTextAreaElement;
+        if (textarea) {
+          textarea.value = message;
+        }
       }
     });
   }
