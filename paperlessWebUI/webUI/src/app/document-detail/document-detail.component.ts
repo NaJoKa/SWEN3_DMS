@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from "@angular/core";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router} from "@angular/router";
 import { CommonModule, Location } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { DocumentService, DocumentDto, MetadataDto } from "../document.service";
@@ -7,7 +7,7 @@ import { DocumentService, DocumentDto, MetadataDto } from "../document.service";
 @Component({
   selector: "app-document-detail",
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: "./document-detail.component.html",
   styleUrl: "./document-detail.component.css",
 })

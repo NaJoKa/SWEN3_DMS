@@ -8,16 +8,27 @@
   <div class="col">
     <div class="card shadow-sm">
       <div class="card-body">
-        <h5 class="card-title">Search</h5>
-        <!--ToDO: Johanna -->
+        <h5 class="card-title">Searching</h5>
+        <div class="input-group mb-3">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search documents..."
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="searchDocuments()"
+          />
+          <button class="btn btn-primary" (click)="searchDocuments()">
+            <i class="bi bi-search"></i> Search
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </div>
-<div class="col-md-8">
+<div class="col">
   <div class="card shadow-sm">
     <div class="card-body">
-      <h5 class="card-title">Recent Orders</h5>
+      <h5 class="card-title">Recent Documents</h5>
       <div class="table-responsive">
       <!-- Using async pipe with *ngIf to handle the observable correctly -->
         <table class="table table-striped">
