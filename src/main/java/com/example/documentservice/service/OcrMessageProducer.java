@@ -1,5 +1,6 @@
 package com.example.documentservice.service;
 
+import com.example.documentservice.entity.Document;
 import com.example.documentservice.exception.KafkaSendException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,5 +31,8 @@ public class OcrMessageProducer {
             logger.error("Failed to send document '{}' to Kafka topic '{}': {}", documentId, topicOcr, e.getMessage());
             throw new KafkaSendException("Error sending document to Kafka", e);
         }
+    }
+
+    public void sendOcrMessage(Document saved) {
     }
 }

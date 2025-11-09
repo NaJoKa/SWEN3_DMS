@@ -15,9 +15,6 @@ public interface IDocumentController {
     @GetMapping
     ResponseEntity<List<Document>> getAllDocuments();
 
-    @PostMapping
-    ResponseEntity<Document> uploadDocument(@RequestBody Document document);
-
     @PutMapping("/{id}")
     ResponseEntity<Document> updateDocumentById(@PathVariable Integer id,
                                                 @RequestBody Document updatedDocument);

@@ -2,57 +2,92 @@ package com.example.documentservice.controller;
 
 import com.example.documentservice.dto.DocumentRequest;
 import com.example.documentservice.entity.Document;
-import com.example.documentservice.exception.KafkaSendException;
 import com.example.documentservice.repository.DocumentRepository;
+import com.example.documentservice.service.MinioStorageService;
 import com.example.documentservice.service.OcrMessageProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import org.springframework.web.multipart.MultipartFile;
+import java.time.LocalDateTime;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
-public class DocumentController implements IDocumentController {
-    @Inject
-    @Named("documentRepository")
-    private DocumentRepository documentRepository;
-    private final OcrMessageProducer ocrProducer;
+public class DocumentController {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentController.class);
 
+    private final DocumentRepository documentRepository;
+    private final OcrMessageProducer ocrMessageProducer;
+    private final MinioStorageService minioStorageService;
 
-    public DocumentController(OcrMessageProducer ocrProducer) {
-        this.ocrProducer = ocrProducer;
+    public DocumentController(DocumentRepository documentRepository,
+                              OcrMessageProducer ocrMessageProducer,
+                              MinioStorageService minioStorageService) {
+        this.documentRepository = documentRepository;
+        this.ocrMessageProducer = ocrMessageProducer;
+        this.minioStorageService = minioStorageService;
     }
 
-    @Override
+    // --- Ping zum Testen ---
+    @GetMapping("/documents/ping")
+    public String ping() {
+        return "pong from document-service";
+    }
+
+    // --- CRUD GET ---
+
+    // Tests erwarten: Rückgabe = Document
+    @GetMapping("/documents/{id}")
     public Document getDocumentById(@PathVariable Integer id) {
         return this.documentRepository.findById(id).orElse(null);
     }
 
-    @Override
+    @GetMapping("/documents")
     public ResponseEntity<List<Document>> getAllDocuments() {
         List<Document> documents = this.documentRepository.findAll();
         return ResponseEntity.ok(documents);
     }
 
-    @Override
-    public ResponseEntity<Document> uploadDocument(@RequestBody Document document){
-        System.out.println(document);
+    // --- JSON-Upload (für Tests) ---
+
+    // Tests erwarten: uploadDocument(Document) -> ResponseEntity<Document>
+    @PostMapping(path = "/documents", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Document> uploadDocument(@RequestBody Document document) {
         Document saved = this.documentRepository.save(document);
         return ResponseEntity.ok(saved);
     }
 
-    @Override
-    public ResponseEntity<Document> updateDocumentById(@PathVariable Integer id,
-                                               @RequestBody Document updatedDocument){
-        return this.documentRepository.findById(id).map(existingDocument -> {
-                    // Update fields
+    // --- Multipart-Upload (Datei + Titel) ---
+
+    @PostMapping(
+            path = "/documents/upload",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<String> uploadDocumentMultipart(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "title", required = false) String title
+    ) {
+
+
+        String info = "got file=" + file.getOriginalFilename()
+                + ", title=" + (title != null ? title : "<null>");
+
+        return ResponseEntity.ok(info);
+    }
+
+    // --- Update / Delete ---
+
+    @PutMapping("/documents/{id}")
+    public ResponseEntity<Document> updateDocumentById(
+            @PathVariable Integer id,
+            @RequestBody Document updatedDocument
+    ) {
+        return this.documentRepository.findById(id)
+                .map(existingDocument -> {
                     existingDocument.setSummary(updatedDocument.getSummary());
                     existingDocument.setDocumentType(updatedDocument.getDocumentType());
                     existingDocument.setTitle(updatedDocument.getTitle());
@@ -62,51 +97,43 @@ public class DocumentController implements IDocumentController {
                     existingDocument.setStoragePath(updatedDocument.getStoragePath());
                     existingDocument.setArchiveSerialNumber(updatedDocument.getArchiveSerialNumber());
 
-                    // Save updated entity
                     Document savedDocument = this.documentRepository.save(existingDocument);
                     return ResponseEntity.ok(savedDocument);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Override
+    @DeleteMapping("/documents/{id}")
     public ResponseEntity<Void> deleteDocumentById(@PathVariable Integer id) {
         if (documentRepository.existsById(id)) {
             documentRepository.deleteById(id);
-            return ResponseEntity.noContent().build(); // 204 No Content
+            return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.notFound().build(); // 404 Not Found
+            return ResponseEntity.notFound().build();
         }
     }
 
-    @Override
+    // --- OCR-Endpoint ---
+
+    @PostMapping("/documents/send-for-ocr")
     public String sendForOcr(@RequestBody DocumentRequest request) {
-        logger.info(request.toString());
-        // send message to Kafka
-        ocrProducer.sendDocumentForOcr(request.getDocumentId());
-        return "Document sent for OCR: " + request.getDocumentId();
-    }
+        logger.info("sendForOcr request: {}", request);
 
-    @PostMapping("/upload")
-    public String uploadDocument(@RequestParam("file") MultipartFile file) {
+        int id;
         try {
-            if (file.isEmpty()) {
-                throw new IllegalArgumentException("Uploaded file is empty");
-            }
-
-            //extracting metadata
-            String documentId = "doc-" + System.currentTimeMillis();
-            logger.info("Received file '{}', size={} bytes", file.getOriginalFilename(), file.getSize());
-
-            //Send message to Kafka
-            ocrProducer.sendDocumentForOcr(documentId);
-
-            logger.info("Document '{}' sent for OCR processing", documentId);
-            return "Document uploaded successfully and sent for OCR: " + documentId;
-
-        } catch (KafkaSendException e) {
-            logger.error("Failed to send document to Kafka: {}", e.getMessage());
-            throw e;
+            id = Integer.parseInt(request.getDocumentId());
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException(
+                    "documentId muss eine Zahl sein, erhalten: " + request.getDocumentId(),
+                    ex
+            );
         }
+
+        Document doc = documentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Document not found: " + id));
+
+        ocrMessageProducer.sendOcrMessage(doc);
+
+        return "Document sent for OCR: " + id;
     }
 }
