@@ -30,6 +30,10 @@ public class Document implements IDocument {
     private String storagePath;
     private String archiveSerialNumber;
 
+    public Document(String name) {
+        this.title = name;
+    }
+
     /*@ElementCollection
     @CollectionTable(name = "document_tags", joinColumns = @JoinColumn(name = "document_id"))
     @Column(name = "tag")
