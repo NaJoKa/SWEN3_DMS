@@ -1,6 +1,7 @@
-FROM openjdk:21-slim AS builder
+FROM amazoncorretto:21-alpine-jdk AS builder
 
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add maven && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -10,7 +11,7 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM openjdk:21-jdk-slim
+FROM amazoncorretto:21-alpine-jdk
 
 WORKDIR /app
 

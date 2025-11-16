@@ -1,10 +1,11 @@
 # --------------------------
 # Stage 1: Dependencies (Cache Layer)
 # --------------------------
-FROM openjdk:21-slim AS dependencies
+FROM amazoncorretto:21-alpine-jdk AS dependencies
 
 # Maven manuell hinzufügen, weil openjdk-Images kein Maven enthalten
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add maven && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/app
 
@@ -19,9 +20,10 @@ RUN mvn -B -e org.apache.maven.plugins:maven-dependency-plugin:3.7.1:go-offline 
 # --------------------------
 # Stage 2: Build
 # --------------------------
-FROM openjdk:21-slim AS builder
+FROM amazoncorretto:21-alpine-jdk AS builder
 
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add maven && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/app
 
@@ -38,7 +40,7 @@ RUN mvn -B -f pom.xml clean package -DskipTests
 # --------------------------
 # Stage 3: Runtime
 # --------------------------
-FROM openjdk:21-jdk-slim AS runtime
+FROM amazoncorretto:21-alpine-jdk AS runtime
 
 WORKDIR /app
 
