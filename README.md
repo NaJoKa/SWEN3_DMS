@@ -82,7 +82,7 @@ paperless-project/
 │   ├── minio/
 │   ├── postgres/
 │   ├── rabbitmq/
-│   └── adminer/
+│   └── adminer/ 
 │ 
 └── .github/ 
     └── workflows/             # CI/CD Pipelines (z.B. GitHub Actions)
