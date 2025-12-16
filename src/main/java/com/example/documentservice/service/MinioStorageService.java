@@ -62,7 +62,8 @@ public class MinioStorageService {
             );
         } catch (IOException e) {
             // IOExceptions in RuntimeException wrappen
-            throw new RuntimeException("Fehler beim Lesen des Upload-Files", e);
+            //ToDo
+            throw new IOException("Fehler beim Lesen des Upload-Files", e);
         }
 
         return objectName;

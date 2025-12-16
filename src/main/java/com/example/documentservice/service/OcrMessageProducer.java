@@ -32,7 +32,4 @@ public class OcrMessageProducer {
             throw new KafkaSendException("Error sending document to Kafka", e);
         }
     }
-
-    public void sendOcrMessage(Document saved) {
-    }
 }

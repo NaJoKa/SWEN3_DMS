@@ -37,10 +37,10 @@ export class Upload {
     this.uploading = true;
 
     //Sending the Upload request
-    const upload$ = this.http.post('/rest-api/documents/upload', formData, {
+    // im container -> /rest-api/documents, sonst -> http://localhost:8080/documents
+    const upload$ = this.http.post('http://localhost:8080/documents', formData, {
       reportProgress: true,
-      observe: 'events',
-      responseType: 'text' as 'json'
+      observe: 'events'
     })
       .pipe(finalize(() => this.reset()));
 
@@ -50,11 +50,11 @@ export class Upload {
           (100 * (event.loaded / (event.total ?? 1)))
         );
       } else if (event.type === HttpEventType.Response) {
-        const message = event.body as string;
+        const message = event.body;
         console.log('Upload complete!', event.body);
         const textarea = document.getElementById('documentSummary') as HTMLTextAreaElement;
-        if (textarea) {
-          textarea.value = message;
+        if (textarea && message) {
+          textarea.value = message.toString();
         }
       }
     });
