@@ -69,21 +69,21 @@ paperless-project/
 │   ├── Dockerfile
 │   ├── openapi.yml
 │   └── src/
-│
+│ 
 ├── services/                  # PaperlessServices (Worker)
 │   ├── Dockerfile
 │   ├── ocr-worker/
 │   │   └── src/
 │   └── genai-worker/
 │       └── src/
-│
+│ 
 ├── infra/                     # Infrastruktur-Config
 │   ├── elasticsearch/
 │   ├── minio/
 │   ├── postgres/
 │   ├── rabbitmq/
 │   └── adminer/
-│
-└── .github/
+│ 
+└── .github/ 
     └── workflows/             # CI/CD Pipelines (z.B. GitHub Actions)
 ```
