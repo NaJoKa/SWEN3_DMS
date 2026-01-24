@@ -14,12 +14,12 @@ services:
       dockerfile: paperlessREST/Dockerfile
     ports:
       - "8080:8080"
+    env_file:
+      - .env.${ENVIRONMENT}
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       PLUSER: ${PLUSER}
       PLUSER_PASSWORD: ${PLUSER_PASSWORD}
       # Kafka settings (to send document events)
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_KAFKA_LISTENER_MISSING_TOPICS_FATAL: "false"
       SPRING_KAFKA_CONSUMER_GROUP_ID: demo-consumer-group
       SPRING_KAFKA_CONSUMER_CLIENT_ID: api-client-id
@@ -33,8 +33,9 @@ services:
     profiles: ["deploy", "backend"]
   postgres:
     build: infra/postgres/.
+    env_file:
+      - .env.${ENVIRONMENT}
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PLUSER: ${PLUSER}
@@ -49,12 +50,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    profiles: ["deploy", "kafka", "db", "backend"]
+    profiles: ["deploy", "kafka", "db", "backend", "infra"]
 
   pgadmin:
     image: dpage/pgadmin4:latest
     ports:
-      - "5050:80"
+      - "5051:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
@@ -62,7 +63,7 @@ services:
       - postgres
     volumes:
       - ./infra/postgres/pgadmin-servers.json:/pgadmin4/servers.json
-    profiles: ["deploy", "kafka", "db", "backend"]
+    profiles: ["deploy", "kafka", "db", "backend", "infra"]
 
   # ===============================
   # KAFKA (Single Broker Mode)
@@ -72,21 +73,20 @@ services:
     restart: always
     ports:
       - "9092:9092"
+    env_file:
+      - .env.${ENVIRONMENT}
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-    profiles: ["deploy", "kafka", "backend"]
+    profiles: ["deploy", "kafka", "backend", "infra"]
 
   # ===============================
   # OCR WORKER (Kafka Consumer)
@@ -113,16 +113,18 @@ services:
 
   minio:
     image: minio/minio
+    env_file:
+      - .env.${ENVIRONMENT}
     environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: admin-password
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data --console-address ":9090"
     ports:
       - "9000:9000"
       - "9090:9090"
     volumes:
       - minio-storage:/data
-    profiles: ["deploy", "backend"]
+    profiles: ["deploy", "backend", "infra"]
 
 volumes:
   postgres-data:

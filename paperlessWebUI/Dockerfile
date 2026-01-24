@@ -2,15 +2,17 @@
 # Stage 1: Build Angular
 # --------------------
 # Stage 1: Build an Angular Docker Image
-FROM node AS build
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
 COPY /paperlessWebUI/webUI/package*.json ./
 
-RUN npm install
+RUN npm install && npm install -g @angular/cli
 
 COPY /paperlessWebUI/webUI ./
+
+RUN chmod +x node_modules/@esbuild/linux-x64/bin/esbuild
 
 ARG configuration=production
 
