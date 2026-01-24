@@ -1,81 +1,99 @@
 package at.fhtw.worker.service;
 
+import at.fhtw.worker.dto.OcrTopicMessageDto;
+import at.fhtw.worker.dto.ResultTopicMessageDto;
 import at.fhtw.worker.exception.OcrProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Service
 public class OcrProcessingService {
+
+    private static final Logger log = LoggerFactory.getLogger(OcrProcessingService.class);
+
+    private static final long MAX_PDF_BYTES = 25L * 1024L * 1024L; // 25 MB
+    private static final float RENDER_DPI = 300f;
+
     @Autowired
     private MinioService minioService;
 
     @Autowired
-    private PDFService pdfService;
-
-    @Autowired
     private OCRService ocrService;
 
-    private static final Logger log = LoggerFactory.getLogger(OcrProcessingService.class);
-
-    public String process(String documentPath) {
-        log.debug("Starting OCR processing for document: {}", documentPath);
+    /**
+     * Process an OcrTopicMessageDto, download PDF, perform OCR, and return a ResultTopicMessageDto.
+     */
+    public ResultTopicMessageDto process(OcrTopicMessageDto messageDto) throws OcrProcessingException {
+        log.debug("OcrProcessingService.process() - received message: {}", messageDto);
 
         try {
-            // Create an ObjectMapper to parse the JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(documentPath);
+            String objectKey = messageDto.getObjectKey();
+            String objectBucket = messageDto.getBucket();
+            if (objectKey == null || objectKey.isBlank()) {
+                throw new OcrProcessingException("Missing objectKey");
+            }
+            if (objectBucket == null || objectBucket.isBlank()) {
+                objectBucket = objectKey;
+            }
 
-            // Extract the value of documentId
-            String documentId = jsonNode.get("documentId").asText();
-            System.out.println(documentId);  // Output: name.pdf
+            long size = minioService.getObjectSize(objectKey);
+            if (size > MAX_PDF_BYTES) {
+                throw new OcrProcessingException("PDF too large: " + size + " bytes (max " + MAX_PDF_BYTES + ")");
+            }
 
-            String pdfDestinationPath = "./tmp/" + documentId;
-            String imagesPath = "./tmp/images";
+            try (InputStream data = minioService.downloadFileStream(objectKey);
+                 PDDocument document = PDDocument.load(data)) {
 
-            // Step 1: Download PDF from MinIO
-            minioService.downloadFile("documents", documentId, pdfDestinationPath);
+                PDFRenderer renderer = new PDFRenderer(document);
 
-            // Step 2: Convert PDF to Images
-            int pageNum = pdfService.convertPDFToImages(pdfDestinationPath, imagesPath);
-
-            // Step 3: Process OCR for each image
-            StringBuilder result = new StringBuilder();
-            for (int i = 0; i < pageNum; i++) {  // Loop through 5 pages as an example
-                String imageFilePath = imagesPath + "/page_" + i + ".png";
-                String ocrResult = ocrService.processOCR(imageFilePath);
-                result.append("Page ").append(i).append(" OCR Result: ").append(ocrResult).append("\n");
-
-                if (new File(imageFilePath).delete()) {
-                    System.out.println("Image deleted successfully");
-                } else {
-                    System.out.println("Failed to delete the image");
+                StringBuilder resultText = new StringBuilder();
+                int pages = document.getNumberOfPages();
+                for (int page = 0; page < pages; page++) {
+                    try {
+                        BufferedImage pageImage = renderer.renderImageWithDPI(page, RENDER_DPI, ImageType.RGB);
+                        String pageId = objectKey + "#page=" + (page + 1);
+                        String pageText = runOcrOnImage(pageImage, pageId);
+                        if (pageText != null && !pageText.isBlank()) {
+                            if (!resultText.isEmpty()) {
+                                resultText.append(System.lineSeparator()).append(System.lineSeparator());
+                            }
+                            resultText.append(pageText);
+                        }
+                    } catch (Exception pex) {
+                        log.error("Error OCRing page {} of {}: {}", page, objectKey, pex.getMessage(), pex);
+                        throw new OcrProcessingException("Error OCRing page " + page + " for " + objectKey, pex);
+                    }
                 }
-            }
 
-            //delete pdf file
-            if (new File(pdfDestinationPath).delete()) {
-                System.out.println("PDF file deleted successfully");
-            } else {
-                System.out.println("Failed to delete the PDF file");
-            }
+                String finalOcrText = resultText.toString().trim();
+                if (finalOcrText.isEmpty()) {
+                    log.warn("No text extracted from PDF {}", objectKey);
+                }
 
-            if (documentPath.contains("error")) {
-                throw new OcrProcessingException("Simulated OCR failure for input: " + documentPath);
+                ResultTopicMessageDto resultDto = new ResultTopicMessageDto();
+                resultDto.setObjectKey(objectKey);
+                resultDto.setBucket(objectBucket);
+                resultDto.setText(finalOcrText);
+                return resultDto;
             }
-
-            //String result = "OCR_DONE_" + documentPath.toUpperCase();
-            log.debug("Finished OCR processing: {}", result);
-            return result.toString();
 
         } catch (IOException e) {
-            return "Error processing PDF and OCR: " + e.getMessage();
+            throw new OcrProcessingException("Failed to process message/document: " + e.getMessage(), e);
         }
+    }
+
+    private String runOcrOnImage(BufferedImage image, String pageIdentifier) throws OcrProcessingException {
+        log.debug("Running OCR for {}", pageIdentifier);
+        String result = ocrService.processOCR(image);
+        return result != null ? result.trim() : "";
     }
 }
