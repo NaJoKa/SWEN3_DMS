@@ -17,6 +17,14 @@ public class MinioConfig {
     @Value("${minio.secret-key}")
     private String secretKey;
 
+    // default to 'documents' if the property is missing
+    @Value("${minio.bucket:documents}")
+    private String minioBucket;
+
+    public String getMinioBucket() {
+        return minioBucket;
+    }
+
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
