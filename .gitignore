@@ -37,3 +37,5 @@ build/
 
 ### VS Code ###
 .vscode/
+
+paperlessWebUI/webUI/package-lock.json
