@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +30,13 @@ public class Document implements IDocument {
     private String documentType;
     private String storagePath;
     private String archiveSerialNumber;
+
+    @NotNull
+    @Column(nullable = false)
+    private String objectKey;
+
+    @Column(name = "opensearch_id")
+    private String opensearchId;
 
     public Document(String name) {
         this.title = name;
