@@ -93,7 +93,7 @@ services:
   # ===============================
   ocr-worker:
     build:
-      context: ./worker
+      context: apps/ocr-worker
       dockerfile: Dockerfile
     restart: always
     depends_on:
