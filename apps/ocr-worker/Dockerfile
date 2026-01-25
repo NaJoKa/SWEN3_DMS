@@ -15,7 +15,7 @@ FROM amazoncorretto:21-alpine-jdk
 
 # Install Tesseract OCR and its dependencies for Alpine Linux
 RUN apk update && \
-    apk add --no-cache tesseract-ocr tesseract-ocr-eng && \
+    apk add --no-cache tesseract-ocr tesseract-ocr-data-eng && \
     rm -rf /var/cache/apk/*
 
 WORKDIR /app
