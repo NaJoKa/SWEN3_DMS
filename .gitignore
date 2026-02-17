@@ -3,6 +3,7 @@
 **/target
 
 node_modules
+.env
 
 HELP.md
 target/
