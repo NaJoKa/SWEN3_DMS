@@ -25,6 +25,9 @@ services:
       SPRING_KAFKA_CONSUMER_CLIENT_ID: api-client-id
       KAFKA_TOPIC_OCR: doc.ocr
       KAFKA_TOPIC_RESULT: doc.ocr.result
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
     depends_on:
       postgres:
         condition: service_healthy
@@ -96,6 +99,8 @@ services:
       context: apps/ocr-worker
       dockerfile: Dockerfile
     restart: always
+    env_file:
+      - .env.${ENVIRONMENT}
     depends_on:
       kafka:
         condition: service_started
@@ -107,6 +112,9 @@ services:
       KAFKA_TOPIC_DLQ: doc.ocr.dlq
       LOGGING_LEVEL_APP: DEBUG
       SERVER_PORT: 8085
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
     ports:
       - "8085:8085"
     profiles: ["deploy", "backend"]
