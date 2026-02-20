@@ -83,6 +83,8 @@ public class OcrProcessingService {
                 resultDto.setObjectKey(objectKey);
                 resultDto.setBucket(objectBucket);
                 resultDto.setText(finalOcrText);
+                log.debug("Finished OCR for {}, extracted text length: {}", objectKey, finalOcrText.length());
+                log.debug("Extracted text preview: {}", finalOcrText.length() > 200 ? finalOcrText.substring(0, 200) + "..." : finalOcrText);
                 return resultDto;
             }
 
