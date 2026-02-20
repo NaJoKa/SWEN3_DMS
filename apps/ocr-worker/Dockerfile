@@ -22,7 +22,7 @@ WORKDIR /app
 
 # Copy tessdata from repo into container so Tess4J can find language files
 #COPY tesseract/tessdata /app/tesseract/tessdata
-ENV TESSDATA_PREFIX=/app/tesseract
+ENV TESSDATA_PREFIX=/usr/share/tessdata/
 
 COPY --from=builder /app/target/worker-0.0.1-SNAPSHOT.jar /app/worker.jar
 
