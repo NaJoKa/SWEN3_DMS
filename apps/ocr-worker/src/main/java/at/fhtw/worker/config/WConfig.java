@@ -11,6 +11,7 @@ public class WConfig {
         String tessdataPathtmp = System.getenv("TESSDATA_PREFIX");
         if (tessdataPathtmp == null || tessdataPathtmp.isEmpty()) {
             File tessDataFolder = LoadLibs.extractTessResources("tessdata");
+            System.out.println(tessDataFolder.getAbsolutePath());
             tessdataPathtmp = tessDataFolder.getAbsolutePath();
         }
         this.tessdataPath = tessdataPathtmp;
