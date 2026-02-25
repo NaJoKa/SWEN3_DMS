@@ -1,7 +1,10 @@
 package com.example.documentservice.controller;
 
 import com.example.documentservice.dto.DocumentRequest;
+import com.example.documentservice.dto.DocumentSearchResultDto;
 import com.example.documentservice.entity.Document;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,4 +36,11 @@ public interface IDocumentController {
     // --- Ping zum Testen ---
     @GetMapping("/ping")
     String ping();
+
+    @GetMapping("/search")
+    public Page<DocumentSearchResultDto> search(
+            @RequestParam String query,
+            Pageable pageable,
+            @RequestParam int size
+    );
 }
