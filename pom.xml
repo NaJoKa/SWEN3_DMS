@@ -13,6 +13,7 @@
 		<spring.boot.version>3.2.0</spring.boot.version>
 		<maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
 		<lombok-version>1.18.34</lombok-version>
+		<mapstruct.version>1.5.5.Final</mapstruct.version>
 	</properties>
 
 	<dependencyManagement>
@@ -91,7 +92,34 @@
 		<dependency>
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>
-			<version>8.5.17</version>
+			<version>8.6.0</version>
+		</dependency>
+
+		<!-- OpenSearch Java client -->
+		<dependency>
+			<groupId>org.opensearch.client</groupId>
+			<artifactId>opensearch-java</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.opensearch.client</groupId>
+			<artifactId>opensearch-rest-client</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${mapstruct.version}</version>
+		</dependency>
+		<!-- Jackson Hibernate module to handle Hibernate proxies during JSON serialization -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-hibernate5</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.validation</groupId>
+			<artifactId>jakarta.validation-api</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -137,7 +165,11 @@
 							<artifactId>lombok</artifactId>
 							<version>${lombok-version}</version>
 						</path>
-						<!-- Add other annotation processors here if needed -->
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>${mapstruct.version}</version>
+						</path>
 					</annotationProcessorPaths>
 					<compilerArgument>-parameters</compilerArgument>  <!-- Add this line -->
 				</configuration>

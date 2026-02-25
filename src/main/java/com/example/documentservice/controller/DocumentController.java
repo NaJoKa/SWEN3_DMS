@@ -1,15 +1,20 @@
 package com.example.documentservice.controller;
 
 import com.example.documentservice.dto.DocumentRequest;
-import com.example.documentservice.dto.OcrTopicMessageDto;
+import com.example.documentservice.dto.DocumentSearchResultDto;
 import com.example.documentservice.entity.Document;
+import com.example.documentservice.entity.User;
 import com.example.documentservice.exception.KafkaSendException;
 import com.example.documentservice.repository.DocumentRepository;
+import com.example.documentservice.service.DocumentSearchService;
 import com.example.documentservice.service.MinioStorageService;
-import com.example.documentservice.service.OcrMessageProducer;
+import com.example.documentservice.service.kafka.OcrMessageProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +23,6 @@ import jakarta.inject.Named;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -29,13 +33,17 @@ public class DocumentController implements IDocumentController {
     private final OcrMessageProducer ocrProducer;
     private final MinioStorageService minioStorageService;
     private final ObjectMapper objectMapper;
+    private final DocumentSearchService searchService;
+    private final com.example.documentservice.repository.UserRepository userRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentController.class);
 
-    public DocumentController(OcrMessageProducer ocrProducer, MinioStorageService minioStorageService, ObjectMapper objectMapper) {
+    public DocumentController(OcrMessageProducer ocrProducer, MinioStorageService minioStorageService, ObjectMapper objectMapper, DocumentSearchService searchService, com.example.documentservice.repository.UserRepository userRepository) {
         this.ocrProducer = ocrProducer;
         this.minioStorageService = minioStorageService;
         this.objectMapper = objectMapper;
+        this.searchService = searchService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -63,6 +71,9 @@ public class DocumentController implements IDocumentController {
         String objectKey = this.minioStorageService.upload(file);
         doc.setObjectKey(objectKey);
 
+        // Assign test user as owner if present
+        userRepository.findByUsername("testuser").ifPresent(doc::setOwner);
+
         doc = documentRepository.save(doc);
 
         try {
@@ -79,6 +90,11 @@ public class DocumentController implements IDocumentController {
             logger.error("Failed to send document to MinIO: {}", e.getMessage());
             throw new RuntimeException(e);
         }
+
+        String query = "language = \"eng\"";
+        Pageable pageable = PageRequest.of(0, 10);
+        //Page<DocumentSearchResultDto> p = search(query, pageable, 10);
+        //System.out.println(p.getContent());
 
         return ResponseEntity.ok(doc);
     }
@@ -130,4 +146,19 @@ public class DocumentController implements IDocumentController {
     private ResponseStatusException badRequest(String message) {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }
+
+    @Override
+    public Page<DocumentSearchResultDto> search(
+            @RequestParam(name = "q") String query,
+            Pageable pageable,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        //User currentUser = userUtils.getCurrentUser();
+        //Long userId = currentUser.getId();
+        Long userId = userRepository.findByUsername("testuser").get().getId();
+        logger.info("SEARCH called: query='{}', ownerId='{}', page={}, size={}",
+                query, userId, pageable, size);
+        return searchService.search(userId, query, pageable);
+    }
+
 }

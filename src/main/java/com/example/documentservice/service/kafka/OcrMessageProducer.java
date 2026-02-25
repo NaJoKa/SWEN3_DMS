@@ -1,4 +1,4 @@
-package com.example.documentservice.service;
+package com.example.documentservice.service.kafka;
 
 import com.example.documentservice.dto.OcrTopicMessageDto;
 import com.example.documentservice.entity.Document;

@@ -38,6 +38,10 @@ public class Document implements IDocument {
     @Column(name = "opensearch_id")
     private String opensearchId;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User owner;
+
     public Document(String name) {
         this.title = name;
     }

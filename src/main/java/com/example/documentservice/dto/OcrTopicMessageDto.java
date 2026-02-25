@@ -9,16 +9,6 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class OcrTopicMessageDto {
-    @JsonProperty("objectKey")
     private String objectKey;
-    @JsonProperty("bucket")
-    private String bucket;
-
-    @Override
-    public String toString() {
-        return "OcrTopicMessageDto{" +
-               "objectKey='" + objectKey + '\'' +
-               ", bucket='" + bucket + '\'' +
-               '}';
-    }
+    private String fileName;
 }
