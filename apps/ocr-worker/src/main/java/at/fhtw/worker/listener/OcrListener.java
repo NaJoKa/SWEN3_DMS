@@ -28,8 +28,8 @@ public class OcrListener {
     private final String dlqTopic;
 
     public OcrListener(OcrProcessingService ocrProcessingService, KafkaTemplate<String, String> kafkaTemplate,
-                       @Value("${kafka.topic.input:doc.ocr}") String inputTopic,
-                       @Value("${kafka.topic.output:doc.ocr.result}") String outputTopic,
+                       @Value("${kafka.topic.input.ocr-worker}") String inputTopic,
+                       @Value("${kafka.topic.output.ocr-worker}") String outputTopic,
                        @Value("${kafka.topic.dlq:doc.ocr.dlq}") String dlqTopic) {
         this.ocrProcessingService = ocrProcessingService;
         this.kafkaTemplate = kafkaTemplate;

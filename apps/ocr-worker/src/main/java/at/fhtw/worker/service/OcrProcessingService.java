@@ -37,12 +37,12 @@ public class OcrProcessingService {
 
         try {
             String objectKey = messageDto.getObjectKey();
-            String objectBucket = messageDto.getBucket();
+            String fileName = messageDto.getFileName();
             if (objectKey == null || objectKey.isBlank()) {
-                throw new OcrProcessingException("Missing objectKey");
+                throw new OcrProcessingException("Message missing s3Key");
             }
-            if (objectBucket == null || objectBucket.isBlank()) {
-                objectBucket = objectKey;
+            if (fileName == null || fileName.isBlank()) {
+                fileName = objectKey;
             }
 
             long size = minioService.getObjectSize(objectKey);
@@ -81,8 +81,8 @@ public class OcrProcessingService {
 
                 ResultTopicMessageDto resultDto = new ResultTopicMessageDto();
                 resultDto.setObjectKey(objectKey);
-                resultDto.setBucket(objectBucket);
-                resultDto.setText(finalOcrText);
+                resultDto.setFileName(fileName);
+                resultDto.setProcessedMessage(finalOcrText);
                 log.debug("Finished OCR for {}, extracted text length: {}", objectKey, finalOcrText.length());
                 log.debug("Extracted text preview: {}", finalOcrText.length() > 200 ? finalOcrText.substring(0, 200) + "..." : finalOcrText);
                 return resultDto;
