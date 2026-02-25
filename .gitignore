@@ -1,5 +1,9 @@
+**/node_modules
+**/dist
+**/target
 
 node_modules
+.env
 
 HELP.md
 target/
@@ -34,3 +38,5 @@ build/
 
 ### VS Code ###
 .vscode/
+
+paperlessWebUI/webUI/package-lock.json

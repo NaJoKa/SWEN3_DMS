@@ -1,9 +1,11 @@
 package com.example.documentservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +31,22 @@ public class Document implements IDocument {
     private String documentType;
     private String storagePath;
     private String archiveSerialNumber;
+
+    @NotNull
+    @Column(nullable = false)
+    private String objectKey;
+
+    @Column(name = "opensearch_id")
+    private String opensearchId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // to avoid serialization issues with lazy loading Errors
+    private User owner;
+
+    public Document(String name) {
+        this.title = name;
+    }
 
     /*@ElementCollection
     @CollectionTable(name = "document_tags", joinColumns = @JoinColumn(name = "document_id"))

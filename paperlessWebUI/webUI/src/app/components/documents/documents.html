@@ -17,51 +17,96 @@
             [(ngModel)]="searchQuery"
             (keyup.enter)="searchDocuments()"
           />
-          <button class="btn btn-primary" (click)="searchDocuments()">
+          <button class="btn btn-primary" (click)="searchDocuments(0)">
             <i class="bi bi-search"></i> Search
+          </button>
+          <button class="btn btn-secondary" (click)="loadAllDocuments()">
+            <i class="bi bi-arrow-clockwise"></i> Reset
           </button>
         </div>
       </div>
     </div>
   </div>
 </div>
-<div class="col">
+<div class="col-md-8">
   <div class="card shadow-sm">
     <div class="card-body">
+      <div *ngIf="editingId" class="mb-3" #editorContainer>
+        <app-document-edit [documentId]="editingId" (saved)="onEditorSaved()" (closed)="onEditorClosed()"></app-document-edit>
+      </div>
+      <div *ngIf="showSettings" class="mb-3">
+        <app-settings-panel (closed)="onSettingsClosed()"></app-settings-panel>
+      </div>
       <h5 class="card-title">Recent Documents</h5>
       <div class="table-responsive">
       <!-- Using async pipe with *ngIf to handle the observable correctly -->
-        <table class="table table-striped">
-          <thead>
-          <tr>
-            <th>Title</th>
-            <th>Summary</th>
-            <th>Created</th>
-            <th>Correspondent</th>
-            <th>Document Type</th>
-            <th>Storage Path</th>
-            <th>Archive Serial Number</th>
-            <th>Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          <!-- Loop through documents using async pipe to get data from Observable -->
-            @for (document of documents$ | async; track document.id) {
-              <tr>
-                <td>{{ document.title }}</td>
-                <td>{{ document.summary }}</td>
-                <td>{{ document.created | date:'short' }}</td>
-                <td>{{ document.correspondent }}</td>
-                <td>{{ document.documentType }}</td>
-                <td>{{ document.storagePath }}</td>
-                <td>{{ document.archiveSerialNumber }}</td>
-                <td>
-                  <button class="btn btn-info" (click)="viewDocument(document.id)">View</button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+        <div class="documents-wrapper">
+          <!-- If we have paged results, show them as DocumentSearchResultDto rows -->
+          <div *ngIf="pageData; else allList">
+            <table class="table table-striped documents-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Summary</th>
+                  <th>Owner ID</th>
+                  <th>Object Key</th>
+                  <th>Score</th>
+                  <th>Snippet</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let dto of pageData.content">
+                  <td>{{dto.id}}</td>
+                  <td>{{dto.name}}</td>
+                  <td class="summary-cell" title="{{dto.summary}}">{{dto.summary}}</td>
+                  <td>{{dto.ownerId}}</td>
+                  <td>{{dto.objectKey}}</td>
+                  <td>{{dto.score}}</td>
+                  <td class="snippet-cell" title="{{dto.snippet}}">{{dto.snippet}}</td>
+                  <td><button class="btn btn-info" (click)="viewDocument(dto.id)">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="pagination-controls">
+              <button (click)="prevPage()" [disabled]="!pageData || pageData.page <= 0">Prev</button>
+              <span>Page {{(pageData?.page ?? 0) + 1}} / {{pageData?.totalPages ?? 0}} — {{pageData?.totalElements ?? 0}} results</span>
+              <button (click)="nextPage()" [disabled]="!pageData || (pageData.page >= (pageData.totalPages - 1))">Next</button>
+            </div>
+          </div>
+
+          <!-- Fallback: show non-paged list (original table) -->
+          <ng-template #allList>
+            <table class="table table-striped documents-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Summary</th>
+                  <th>Created</th>
+                  <th>Correspondent</th>
+                  <th>Document Type</th>
+                  <th>Storage Path</th>
+                  <th>Archive Serial Number</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let doc of documents$ | async">
+                  <td>{{doc.title}}</td>
+                  <td class="summary-cell" title="{{doc.summary}}">{{doc.summary}}</td>
+                  <td>{{doc.created | date}}</td>
+                  <td>{{doc.correspondent}}</td>
+                  <td>{{doc.documentType}}</td>
+                  <td>{{doc.storagePath}}</td>
+                  <td>{{doc.archiveSerialNumber}}</td>
+                  <td><button class="btn btn-info" (click)="viewDocument(doc.id)">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </ng-template>
+        </div>
       </div>
     </div>
   </div>

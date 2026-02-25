@@ -1,0 +1,10 @@
+.edit-card {
+  background: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.form-group { margin-bottom: 8px; }
+.form-row { display:flex; gap: 8px; }
+.form-row .col { flex: 1; }
+.actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
