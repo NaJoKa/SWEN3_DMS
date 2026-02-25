@@ -1,0 +1,39 @@
+<div class="edit-card">
+  <div *ngIf="loading">Loading...</div>
+  <div *ngIf="!loading && doc">
+    <h3>Edit document</h3>
+    <div class="form-group">
+      <label>Title</label>
+      <input #titleInput class="form-control" [(ngModel)]="doc.title" />
+    </div>
+    <div class="form-group">
+      <label>Summary</label>
+      <textarea class="form-control" rows="4" [(ngModel)]="doc.summary"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label>Correspondent</label>
+        <input class="form-control" [(ngModel)]="doc.correspondent" />
+      </div>
+      <div class="form-group col">
+        <label>Document Type</label>
+        <input class="form-control" [(ngModel)]="doc.documentType" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label>Storage Path</label>
+        <input class="form-control" [(ngModel)]="doc.storagePath" />
+      </div>
+      <div class="form-group col">
+        <label>Archive Serial Number</label>
+        <input class="form-control" [(ngModel)]="doc.archiveSerialNumber" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" (click)="close()">Cancel</button>
+      <button class="btn btn-primary" (click)="save()" [disabled]="saving">Save</button>
+    </div>
+  </div>
+</div>

@@ -25,9 +25,28 @@ public class OpenSearchIndexService {
         this.indexName = indexName;
     }
 
-    public SearchResponse<PDFDocument> search(String query, Set<String> allowedIds, Pageable pageable) throws IOException {
+    public SearchResponse<PDFDocument> searchOld(String query, Set<String> allowedIds, Pageable pageable) throws IOException {
         // Build a simple query: multi-match on fields and ids filter
         Query multi = Query.of(q -> q.multiMatch(m -> m.query(query).fields("fileName^2", "summary^1.5", "textContent")));
+        List<String> idsList = new ArrayList<>(allowedIds);
+        Query ids = Query.of(q -> q.ids(i -> i.values(idsList)));
+        Query root = Query.of(q -> q.bool(b -> b.must(multi).filter(ids)));
+
+        SearchRequest sr = SearchRequest.of(s -> s.index(indexName).query(root).from((int) pageable.getOffset()).size(pageable.getPageSize()));
+        return client.search(sr, PDFDocument.class);
+    }
+
+    public SearchResponse<PDFDocument> search(String query, Set<String> allowedIds, Pageable pageable, boolean fuzzy) throws IOException {
+        // Build a multi-match query; bei fuzzy=true wird fuzziness aktiviert
+        Query multi = Query.of(q -> q.multiMatch(m -> {
+            m.query(query);
+            m.fields("fileName^2", "summary^1.5", "textContent");
+            if (fuzzy) {
+                m.fuzziness("AUTO");
+            }
+            return m;
+        }));
+
         List<String> idsList = new ArrayList<>(allowedIds);
         Query ids = Query.of(q -> q.ids(i -> i.values(idsList)));
         Query root = Query.of(q -> q.bool(b -> b.must(multi).filter(ids)));

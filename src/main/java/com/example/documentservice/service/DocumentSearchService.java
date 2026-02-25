@@ -64,7 +64,7 @@ public class DocumentSearchService implements IDocumentSearchService {
         }
 
         try {
-            SearchResponse<PDFDocument> response = openSearchIndexService.search(query, docsByElasticId.keySet(), pageable);
+            SearchResponse<PDFDocument> response = openSearchIndexService.search(query, docsByElasticId.keySet(), pageable, true);
             List<DocumentSearchResultDto> results = response.hits().hits().stream()
                     .map(hit -> {
                         // inline mapping to avoid depending on a SearchHit import

@@ -20,7 +20,7 @@ public class PDFDocumentRepository {
         this.openSearchIndexService = openSearchIndexService;
     }
 
-    public SearchResponse<PDFDocument> search(String query, Set<String> allowedIds, Pageable pageable) throws IOException {
-        return openSearchIndexService.search(query, allowedIds, pageable);
+    public SearchResponse<PDFDocument> search(String query, Set<String> allowedIds, Pageable pageable, boolean fuzzy) throws IOException {
+        return openSearchIndexService.search(query, allowedIds, pageable, fuzzy);
     }
 }

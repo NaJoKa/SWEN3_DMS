@@ -23,6 +23,8 @@ import jakarta.inject.Named;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -66,13 +68,16 @@ public class DocumentController implements IDocumentController {
 
         //d.setName(meta != null && meta.name() != null ? meta.name() : file.getOriginalFilename());
         doc.setTitle(file.getOriginalFilename());
+        doc.setCreated(LocalDateTime.now());
+        doc.setDocumentType("Portable Document Format");
 
         //send to MinIO ToDo
         String objectKey = this.minioStorageService.upload(file);
         doc.setObjectKey(objectKey);
 
         // Assign test user as owner if present
-        userRepository.findByUsername("testuser").ifPresent(doc::setOwner);
+        userRepository.findByUsername("test").ifPresent(doc::setOwner);
+        doc.setCorrespondent(doc.getOwner().getUsername());
 
         doc = documentRepository.save(doc);
 
