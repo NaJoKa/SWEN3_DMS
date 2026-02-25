@@ -15,6 +15,8 @@ public class WebConfig {
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost", "http://localhost:4200", "http://paperless-rest")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowCredentials(true)
+                        .maxAge(3600)
                         .allowedHeaders("*");
             }
         };

@@ -1,0 +1,23 @@
+.documents-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.documents-table th.summary-header {
+  width: 20%;
+  max-width: 20%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.documents-table td.summary-cell {
+  display: -moz-inline-block;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  /* optional: kleinere Schrift für sehr lange Texte
+  font-size: 0.95rem;*/
+}
+/* ...existing code... */

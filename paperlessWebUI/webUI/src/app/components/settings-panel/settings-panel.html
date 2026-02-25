@@ -1,0 +1,16 @@
+<div class="settings-card">
+  <h4>AI Model Settings</h4>
+  <div *ngIf="loading">Loading models...</div>
+  <div *ngIf="!loading">
+    <div class="form-group">
+      <label for="modelSelect">Select Gemini model</label>
+      <select id="modelSelect" class="form-control" [(ngModel)]="selected">
+        <option *ngFor="let m of models" [value]="m">{{m}}</option>
+      </select>
+    </div>
+    <div class="actions">
+      <button class="btn btn-secondary" (click)="close()">Cancel</button>
+      <button class="btn btn-primary" (click)="save()" [disabled]="saving">Save</button>
+    </div>
+  </div>
+</div>

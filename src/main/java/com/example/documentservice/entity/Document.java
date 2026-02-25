@@ -1,5 +1,6 @@
 package com.example.documentservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,8 +39,9 @@ public class Document implements IDocument {
     @Column(name = "opensearch_id")
     private String opensearchId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // to avoid serialization issues with lazy loading Errors
     private User owner;
 
     public Document(String name) {

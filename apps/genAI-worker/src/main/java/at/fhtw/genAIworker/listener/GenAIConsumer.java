@@ -65,8 +65,8 @@ public class GenAIConsumer {
             String fileName = payload.fileName();
             String objectKey = payload.objectKey();
 
-            //String summary = geminiService.summarize(text);
-            String summary = "This is a placeholder summary. Replace with actual Gemini API call.";
+            String summary = geminiService.summarize(text);
+            //String summary = "This is a placeholder summary. Replace with actual Gemini API call.";
             LOG.info("Generated summary: {}", summary);
 
             // Index document using provided or generated opensearchId

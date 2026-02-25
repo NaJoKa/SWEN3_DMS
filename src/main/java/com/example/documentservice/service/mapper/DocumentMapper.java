@@ -11,5 +11,6 @@ import org.mapstruct.MappingTarget;
 public interface DocumentMapper {
 
     @Mapping(source = "owner.id", target = "ownerId")
+    @Mapping(source = "title", target = "name")
     DocumentDto toDto(Document doc);
 }
